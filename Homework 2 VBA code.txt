@@ -1,0 +1,132 @@
+Sub summary_table()
+
+    For Each ws In Worksheets
+         
+        ' Set an varibles for summary table
+        Dim ticker As String
+        Dim yearly_change As Double
+        Dim percent_change As Double
+        Dim total_stock_volume As Double
+        Dim Summary_Table_Row As Integer
+        Dim counter As Integer
+        
+        yearly_change = 0
+        percent_change = 1
+        total_stock_volume = 0
+        Summary_Table_Row = 2
+        counter = 0
+        
+        'Creating headers for summary table
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        
+        'Creating headers for challenge table
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+        
+        'Find the last row of the combined sheet
+        lastRowFinal = ws.Cells(Rows.Count, "A").End(xlUp).Row
+      
+        For i = 2 To lastRowFinal
+        
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+    
+                'Ticker list in summary table
+                ticker = ws.Cells(i, 1).Value
+                ws.Cells(Summary_Table_Row, 9).Value = ticker
+                
+                'Yearly change in summary table
+                yearly_change = ws.Cells(i, 6).Value - ws.Cells((i - counter), 3).Value
+                ws.Cells(Summary_Table_Row, 10).Value = yearly_change
+                If ws.Cells(Summary_Table_Row, 10).Value > 0 Then
+                    ws.Cells(Summary_Table_Row, 10).Interior.ColorIndex = 4
+                Else
+                    ws.Cells(Summary_Table_Row, 10).Interior.ColorIndex = 3
+                End If
+            
+                'Percent change in summary table
+                If ws.Cells((i - counter), 3).Value > 0 Then
+                    percent_change = ws.Cells(i, 6).Value / ws.Cells((i - counter), 3).Value - 1
+                Else
+                    percent_change = 0
+                End If
+                ws.Cells(Summary_Table_Row, 11).Value = percent_change
+                ws.Cells(Summary_Table_Row, 11).Style = "Percent"
+                
+                'Total Stock Volume in summary table
+                total_stock_volume = total_stock_volume + ws.Cells(i, 7).Value
+                ws.Cells(Summary_Table_Row, 12).Value = total_stock_volume
+                ws.Cells(Summary_Table_Row, 12).Style = "Comma"
+                total_stock_volume = 0
+                
+    
+                Summary_Table_Row = Summary_Table_Row + 1
+                counter = 0
+                
+            Else
+                
+                'Total Stock Volume in summary table
+                total_stock_volume = total_stock_volume + ws.Cells(i, 7).Value
+                
+                counter = counter + 1
+               
+            End If
+        
+        Next
+        
+        
+        'Calculations for challenge table
+        ws.Cells(2, 17).Value = Application.WorksheetFunction.Max(ws.Range("K2" & ":K" & lastRowFinal))
+        ws.Cells(2, 17).Style = "Percent"
+            
+        ws.Cells(3, 17).Value = Application.WorksheetFunction.Min(ws.Range("K2" & ":K" & lastRowFinal))
+        ws.Cells(3, 17).Style = "Percent"
+            
+        ws.Cells(4, 17).Value = Application.WorksheetFunction.Max(ws.Range("L2" & ":L" & lastRowFinal))
+        ws.Cells(4, 17).Style = "Comma"
+            
+        Dim row_number1 As Integer
+        Dim row_number2 As Integer
+        Dim row_number3 As Integer
+        row_number1 = 0
+        row_number2 = 0
+        row_number3 = 0
+        
+        For i = 2 To lastRowFinal
+                
+            If ws.Cells(2, 17).Value = ws.Cells(i, 11).Value Then
+            
+                row_number1 = i
+            
+            ElseIf ws.Cells(3, 17).Value = ws.Cells(i, 11).Value Then
+            
+                row_number2 = i
+             
+            ElseIf ws.Cells(4, 17).Value = ws.Cells(i, 12).Value Then
+            
+                row_number3 = i
+            
+            End If
+            
+            
+        Next
+    
+        ws.Cells(2, 16).Value = ws.Cells(row_number1, 9).Value
+        ws.Cells(3, 16).Value = ws.Cells(row_number2, 9).Value
+        ws.Cells(4, 16).Value = ws.Cells(row_number3, 9).Value
+        
+        ' Autofit to display data
+        ws.Columns("A:Q").AutoFit
+    
+        
+    Next ws
+    
+   
+End Sub
+
+
